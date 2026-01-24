@@ -45,7 +45,7 @@ android {
         }
         debug {
             enableAndroidTestCoverage = true
-            enableUnitTestCoverage = true
+            enableUnitTestCoverage = false
         }
     }
 
@@ -85,9 +85,11 @@ val jacocoTestReport by tasks.registering(JacocoReport::class) {
 
     classDirectories.setFrom(debugTree)
     sourceDirectories.setFrom(files(mainSrc))
-    executionData.setFrom(fileTree(buildDir) {
-        include("**/*.exec", "**/*.ec")
-    })
+    executionData.from(
+        fileTree(buildDir) {
+            include("**/*.exec", "**/*.ec")
+        }
+    )
 }
 
 dependencies {
@@ -117,6 +119,10 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.contrib)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
+
+    // Cucumber
+    androidTestImplementation(libs.cucumber.android)
+    androidTestImplementation(libs.cucumber.java)
 
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
