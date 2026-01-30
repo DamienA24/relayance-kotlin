@@ -1,13 +1,18 @@
 package com.kirabium.relayance.ui.activity
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.activity.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.kirabium.relayance.databinding.ActivityMainBinding
 import com.kirabium.relayance.ui.adapter.CustomerAdapter
 import com.kirabium.relayance.ui.viewmodel.CustomerListViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -22,6 +27,7 @@ class MainActivity : AppCompatActivity() {
         setupBinding()
         setupCustomerRecyclerView()
         setupFab()
+        observeViewModel()
     }
 
     private fun setupFab() {
@@ -33,14 +39,24 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupCustomerRecyclerView() {
         binding.customerRecyclerView.layoutManager = LinearLayoutManager(this)
-        val customers = viewModel.getCustomers()
-        customerAdapter = CustomerAdapter(customers) { customer ->
+        customerAdapter = CustomerAdapter(emptyList()) { customer ->
             val intent = Intent(this, DetailActivity::class.java).apply {
                 putExtra(DetailActivity.EXTRA_CUSTOMER_ID, customer.id)
             }
             startActivity(intent)
         }
         binding.customerRecyclerView.adapter = customerAdapter
+    }
+
+    private fun observeViewModel() {
+        Log.d("MainActivity", "Setting up ViewModel observer")
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.customers.collect { customers ->
+                    customerAdapter.updateCustomers(customers)
+                }
+            }
+        }
     }
 
     private fun setupBinding() {
