@@ -15,6 +15,7 @@ constraintlayout = "2.1.4"
 ksp = "2.0.10-1.0.24"
 daggerHilt = "2.57.1"
 cucumber = "7.14.0"
+coroutines = "1.7.3"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -41,6 +42,7 @@ hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref
 hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "daggerHilt" }
 cucumber-android = { group = "io.cucumber", name = "cucumber-android", version.ref = "cucumber" }
 cucumber-java = { group = "io.cucumber", name = "cucumber-java", version.ref = "cucumber" }
+kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutines" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
