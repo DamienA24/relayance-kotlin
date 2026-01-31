@@ -20,7 +20,7 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        testInstrumentationRunner = "io.cucumber.android.runner.CucumberAndroidJUnitRunner"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
         }
@@ -80,14 +80,43 @@ val jacocoTestReport by tasks.registering(JacocoReport::class) {
         html.required.set(true)
     }
 
-    val debugTree = fileTree("${buildDir}/tmp/kotlin-classes/debug")
     val mainSrc = androidExtension.sourceSets.getByName("main").java.srcDirs
 
-    classDirectories.setFrom(debugTree)
+    // Collecter les classes compilées depuis plusieurs emplacements
+    val kotlinClasses = fileTree("${layout.buildDirectory.get()}/tmp/kotlin-classes/debug")
+    val javaClasses = fileTree("${layout.buildDirectory.get()}/intermediates/javac/debug/compileDebugJavaWithJavac/classes")
+
+    // Exclure les classes générées automatiquement
+    val excludedFiles = listOf(
+        "**/R.class",
+        "**/R$*.class",
+        "**/BuildConfig.*",
+        "**/Manifest*.*",
+        "**/*Test*.*",
+        "android/**/*.*",
+        "**/*_Hilt*.class",
+        "**/*_Factory.class",
+        "**/*_MembersInjector.class",
+        "**/databinding/**/*.*",
+        "**/androidx/**/*.*"
+    )
+
+    classDirectories.setFrom(
+        files(
+            kotlinClasses.exclude(excludedFiles),
+            javaClasses.exclude(excludedFiles)
+        )
+    )
+
     sourceDirectories.setFrom(files(mainSrc))
-    executionData.from(
-        fileTree(buildDir) {
-            include("**/*.exec", "**/*.ec")
+
+    // Collecter les fichiers d'exécution des tests
+    executionData.setFrom(
+        fileTree(layout.buildDirectory.get()) {
+            include(
+                "jacoco/testDebugUnitTest.exec",
+                "outputs/code_coverage/debugAndroidTest/connected/**/*.ec"
+            )
         }
     )
 }
